@@ -1,0 +1,8 @@
+specFileName: openapi.yaml
+apiTitle: Woorton Market-Maker OTC API
+splitSpec: false
+codeSamples: false
+swaggerUI: false
+travis: true
+repo: woorton/otc-api-documentation
+oasVersion: 3.0.0
