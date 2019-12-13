@@ -211,14 +211,19 @@ paths:
       summary: Post an order
       description: |
         You may post an order using this action.
-        <br><br>
-        <b>Orders do not requires confirmations.</b>
-        <br><br>
+
+        **Orders do not requires confirmations.**
+
         Order type are:
-        <ul>
-          <li>FOK: Fill-or-Kill Order;
-          <li>MKT: Market Order.
-        </ul>
+        * **FOK**: Fill-or-Kill Order;
+        * **MKT**: Market Order.
+
+        ### Trade result
+
+        If the trade is not executed, trade's state became `canceled` and `price` field is empty.
+
+        If the trade is executed, trade's state became `executed` and `price` is the execution price.
+
       requestBody:
         content:
           application/json:
@@ -244,7 +249,7 @@ paths:
                     state: executed
                     order_type: "FOK"
                     created_at: 2018-12-29T14:33:24.001345Z
-                    expired_date: 2018-12-29T14:33:39.001345Z
+                    executed_at: 2018-12-29T14:33:39.001345Z
   /balances:
     get:
       tags: ["History"]
@@ -554,6 +559,13 @@ components:
           example: 2018-12-23T21:51:34.001122Z
     Order_request:
       title: Order
+      required:
+        - client_request_id
+        - amount
+        - direction
+        - instrument
+        - requested_price
+        - order_type
       type: object
       properties:
         client_request_id:
