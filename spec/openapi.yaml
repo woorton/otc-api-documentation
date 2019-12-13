@@ -451,6 +451,9 @@ paths:
 
         `{"event":"price","success":true,"instrument":"BTCEUR.SPOT","levels":{"buy":[{"price":"6482.2758","quantity":"1"},{"price":"6482.4760","quantity":"2"}],"sell":[{"price":"6467.2328","quantity":"1"},{"price":"6467.2328","quantity":"2"}]},"timestamp":1576078504345}`
 
+      responses:
+        100:
+          description: N/A
 components:
   schemas:
     RFQ_request:
