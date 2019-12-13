@@ -1,22 +1,56 @@
 openapi: 3.0.0
+x-tagGroups:
+  - name: REST API
+    tags:
+      - Quotes
+      - History
+      - Orders
+      - Misc
+  - name: WebSocket API
+    tags:
+      - Quote
+servers:
+  - url: 'https://api-sandbox.woorton.com/api/v1'
 info:
   version: '1.1'
   title: Woorton Market-Maker OTC API
+  contact:
+    name: API Support
+    email: support@woorton.com
   x-logo:
     url: 'https://www.woorton.com/assets/images/logo/woorton-logo.png'
   description: |
-    <p> The Woorton OTC Public API allows clients to access the market-maker service anytime. <br> The main usage is get quotations and executing trades. <br><br> <b>Clients must be registered to Woorton OTC service to use this API.</b> </p>
-    <h2>Sandbox Environment</h2> <p> URL: <code>https://api-sandbox.woorton.com/api/v1</code> </p>
-    <h2>Authentication</h2> <p> To authenticate with the API, you must add an <code>Authorization</code> header, with the following format : <code>Bearer &lt;TOKEN&gt;</code>. <br><br> Example: <br> <code>Authorization: Bearer e3f515ac6b9b81cd48de42d2ce3f0ada</code> <br><br> Your token will be securely send it to you by Woorton support team. </p>
-    <h2>Security</h2> <p> API access is filtered with IP whitelisting, please contact Woorton support team to whitelist your IPs. </p>
-    <h2>General notes</h2> <ul>
-      <li>API is only accessible through TLS ;
-      <li>dates are in <a href="https://fr.wikipedia.org/wiki/ISO_8601#UTC">ISO 8601 UTC format</a>.</li>
-    </ul>
-    <h2>Libraries and implementation examples</h2> <p> You can find API client library for different languages: </p> <ul>
-      <li><a href="https://github.com/jwoorton/woorton-API-python">Python</a> ;</li>
-      <li><i>more coming soon... </i></li>
-    </ul>
+    The Woorton OTC Public API allows clients to access the market-maker service anytime.
+    The main usage is get quotations and executing trades.
+
+    **Clients must be registered to Woorton OTC service to use this API.**
+
+    # Sandbox Environment
+
+    * REST: `https://api-sandbox.woorton.com/api/v1`
+    * WebSocket: `wss://sandbox.socket.woorton.com/`
+
+    # Authentication
+    To authenticate with the API, you must add an `Authorization` header,
+    with the following format : `Bearer <TOKEN>`.
+
+    Example:
+    `Authorization: Bearer e3f515ac6b9b81cd48de42d2ce3f0ada`
+
+    Your token will be securely send it to you by Woorton support team.
+
+    # Security
+    API access is filtered with IP whitelisting, please contact Woorton support team
+    to whitelist your IPs.
+
+    # General notes
+    * API is only accessible through TLS ;
+    * dates are in <a href="https://fr.wikipedia.org/wiki/ISO_8601#UTC">ISO 8601 UTC format</a>.
+
+    # Libraries and implementation examples
+    You can find API client library for different languages:
+    - <a href="https://github.com/jwoorton/woorton-API-python">Python</a>;
+    - *more coming soon...*
 paths:
   /request_quotes:
     post:
@@ -161,14 +195,18 @@ paths:
       summary: Post an order
       description: |
         You may post an order using this action.
-        <br><br>
-        <b>Orders do not requires confirmations.</b>
-        <br><br>
+
+        **Orders do not requires confirmations.**
+
         Order type are:
-        <ul>
-          <li>FOK: Fill-or-Kill Order;
-          <li>MKT: Market Order.
-        </ul>
+        * **FOK**: Fill-or-Kill Order;
+        * **MKT**: Market Order.
+
+        ### Trade result
+
+        If the trade is not executed, trade's state became `canceled` and `price` field is empty.
+
+        If the trade is executed, trade's state became `executed` and `price` is the execution price.
       requestBody:
         content:
           application/json:
@@ -194,7 +232,7 @@ paths:
                     state: executed
                     order_type: FOK
                     created_at: 2018-12-29T14:33:24.001Z
-                    expired_date: 2018-12-29T14:33:39.001Z
+                    executed_at: 2018-12-29T14:33:39.001Z
   /balances:
     get:
       tags:
@@ -255,6 +293,7 @@ paths:
                     LTC: 100
     summary: Exposures
   /ledger:
+    summary: Ledger
     get:
       tags:
         - History
@@ -298,8 +337,8 @@ paths:
                       amount: '40000.00000000'
                       category: deposit
                       created_at: 2018-12-25T13:55:34.012Z
-    summary: Ledger
   /instruments:
+    summary: Instruments
     get:
       tags:
         - Misc
@@ -321,9 +360,69 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Instruments'
-    summary: Instruments
-servers:
-  - url: 'https://api-sandbox.woorton.com/api/v1'
+  /:
+    summary: Price
+    get:
+      tags:
+        - Quote
+      summary: Price broadcasting
+      description: |
+        ### Introduction
+
+        This server is usable only by Woorton's customers.
+
+        ### Workflow
+
+        * **Log-in** : connection to websocket server ;
+        * **Subscribe** : subscribe to one or more instruments ;
+        * **Messages** : receive price stream messages ;
+        * **Unsubscribe** : unsubscribe to one or more instruments.
+
+        ### Trade execution
+        This service only provide indicative prices, for a limited numbers of levels.
+
+        You need to send a <u><a href="#tag/Orders/paths/~1orders/post">FOK order</a></u> to execute a trade.
+
+        You can also use <u><a href="#tag/Quotes/paths/~1request_quotes/post">RFQs</a></u> to get more reliable price.
+
+        ### Authentication
+
+        To authenticate with the API, you must add an `Authorization` header,
+        with the following format : `Bearer <TOKEN>`.
+
+        Example:
+        `Authorization: Bearer e3f515ac6b9b81cd48de42d2ce3f0ada`
+
+        ### Usage
+
+        The socket API only allows a maximum of **2** connections per account.
+
+        Additional connexions will be rejected.
+
+        The quote Websocket API allows subscription to any allowed instruments. You can subscribe to any number of instruments per connection.
+
+        *For the sake of reliability, we strongly advise you to reconnect in case of deconnection.*
+
+        ### Subscribe message
+
+        This is the format of the subscribe message:
+
+        `{"event":"subscribe", "instrument":"BTCEUR.SPOT"}`
+
+        ### Unsubscribe message
+
+        This is the format of the unsubscribe message:
+
+        `{"event":"unsubscribe", "instrument":"BTCEUR.SPOT"}`
+
+        ### Price messages
+
+        This is the format of price messages:
+
+        `{"event":"price","success":true,"instrument":"BTCEUR.SPOT","levels":{"buy":[{"price":"6482.2758","quantity":"1"},{"price":"6482.4760","quantity":"2"}],"sell":[{"price":"6467.2328","quantity":"1"},{"price":"6467.2328","quantity":"2"}]},"timestamp":1576078504345}`
+      responses:
+        '100':
+          description: N/A
 components:
   schemas:
     RFQ_request:
@@ -432,6 +531,13 @@ components:
           example: 2018-12-23T21:51:34.001Z
     Order_request:
       title: Order
+      required:
+        - client_request_id
+        - amount
+        - direction
+        - instrument
+        - requested_price
+        - order_type
       type: object
       properties:
         client_request_id:

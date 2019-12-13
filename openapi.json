@@ -1,12 +1,38 @@
 {
   "openapi": "3.0.0",
+  "x-tagGroups": [
+    {
+      "name": "REST API",
+      "tags": [
+        "Quotes",
+        "History",
+        "Orders",
+        "Misc"
+      ]
+    },
+    {
+      "name": "WebSocket API",
+      "tags": [
+        "Quote"
+      ]
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api-sandbox.woorton.com/api/v1"
+    }
+  ],
   "info": {
     "version": "1.1",
     "title": "Woorton Market-Maker OTC API",
+    "contact": {
+      "name": "API Support",
+      "email": "support@woorton.com"
+    },
     "x-logo": {
       "url": "https://www.woorton.com/assets/images/logo/woorton-logo.png"
     },
-    "description": "<p> The Woorton OTC Public API allows clients to access the market-maker service anytime. <br> The main usage is get quotations and executing trades. <br><br> <b>Clients must be registered to Woorton OTC service to use this API.</b> </p>\n<h2>Sandbox Environment</h2> <p> URL: <code>https://api-sandbox.woorton.com/api/v1</code> </p>\n<h2>Authentication</h2> <p> To authenticate with the API, you must add an <code>Authorization</code> header, with the following format : <code>Bearer &lt;TOKEN&gt;</code>. <br><br> Example: <br> <code>Authorization: Bearer e3f515ac6b9b81cd48de42d2ce3f0ada</code> <br><br> Your token will be securely send it to you by Woorton support team. </p>\n<h2>Security</h2> <p> API access is filtered with IP whitelisting, please contact Woorton support team to whitelist your IPs. </p>\n<h2>General notes</h2> <ul>\n  <li>API is only accessible through TLS ;\n  <li>dates are in <a href=\"https://fr.wikipedia.org/wiki/ISO_8601#UTC\">ISO 8601 UTC format</a>.</li>\n</ul>\n<h2>Libraries and implementation examples</h2> <p> You can find API client library for different languages: </p> <ul>\n  <li><a href=\"https://github.com/jwoorton/woorton-API-python\">Python</a> ;</li>\n  <li><i>more coming soon... </i></li>\n</ul>\n"
+    "description": "The Woorton OTC Public API allows clients to access the market-maker service anytime.\nThe main usage is get quotations and executing trades.\n\n**Clients must be registered to Woorton OTC service to use this API.**\n\n# Sandbox Environment\n\n* REST: `https://api-sandbox.woorton.com/api/v1`\n* WebSocket: `wss://sandbox.socket.woorton.com/`\n\n# Authentication\nTo authenticate with the API, you must add an `Authorization` header,\nwith the following format : `Bearer <TOKEN>`.\n\nExample:\n`Authorization: Bearer e3f515ac6b9b81cd48de42d2ce3f0ada`\n\nYour token will be securely send it to you by Woorton support team.\n\n# Security\nAPI access is filtered with IP whitelisting, please contact Woorton support team\nto whitelist your IPs.\n\n# General notes\n* API is only accessible through TLS ;\n* dates are in <a href=\"https://fr.wikipedia.org/wiki/ISO_8601#UTC\">ISO 8601 UTC format</a>.\n\n# Libraries and implementation examples\nYou can find API client library for different languages:\n- <a href=\"https://github.com/jwoorton/woorton-API-python\">Python</a>;\n- *more coming soon...*\n"
   },
   "paths": {
     "/request_quotes": {
@@ -181,7 +207,7 @@
           "Orders"
         ],
         "summary": "Post an order",
-        "description": "You may post an order using this action.\n<br><br>\n<b>Orders do not requires confirmations.</b>\n<br><br>\nOrder type are:\n<ul>\n  <li>FOK: Fill-or-Kill Order;\n  <li>MKT: Market Order.\n</ul>\n",
+        "description": "You may post an order using this action.\n\n**Orders do not requires confirmations.**\n\nOrder type are:\n* **FOK**: Fill-or-Kill Order;\n* **MKT**: Market Order.\n\n### Trade result\n\nIf the trade is not executed, trade's state became `canceled` and `price` field is empty.\n\nIf the trade is executed, trade's state became `executed` and `price` is the execution price.\n",
         "requestBody": {
           "content": {
             "application/json": {
@@ -212,7 +238,7 @@
                       "state": "executed",
                       "order_type": "FOK",
                       "created_at": "2018-12-29T14:33:24.001Z",
-                      "expired_date": "2018-12-29T14:33:39.001Z"
+                      "executed_at": "2018-12-29T14:33:39.001Z"
                     }
                   }
                 }
@@ -295,6 +321,7 @@
       "summary": "Exposures"
     },
     "/ledger": {
+      "summary": "Ledger",
       "get": {
         "tags": [
           "History"
@@ -354,10 +381,10 @@
             }
           }
         }
-      },
-      "summary": "Ledger"
+      }
     },
     "/instruments": {
+      "summary": "Instruments",
       "get": {
         "tags": [
           "Misc"
@@ -389,15 +416,24 @@
             }
           }
         }
-      },
-      "summary": "Instruments"
+      }
+    },
+    "/": {
+      "summary": "Price",
+      "get": {
+        "tags": [
+          "Quote"
+        ],
+        "summary": "Price broadcasting",
+        "description": "### Introduction\n\nThis server is usable only by Woorton's customers.\n\n### Workflow\n\n* **Log-in** : connection to websocket server ;\n* **Subscribe** : subscribe to one or more instruments ;\n* **Messages** : receive price stream messages ;\n* **Unsubscribe** : unsubscribe to one or more instruments.\n\n### Trade execution\nThis service only provide indicative prices, for a limited numbers of levels.\n\nYou need to send a <u><a href=\"#tag/Orders/paths/~1orders/post\">FOK order</a></u> to execute a trade.\n\nYou can also use <u><a href=\"#tag/Quotes/paths/~1request_quotes/post\">RFQs</a></u> to get more reliable price.\n\n### Authentication\n\nTo authenticate with the API, you must add an `Authorization` header,\nwith the following format : `Bearer <TOKEN>`.\n\nExample:\n`Authorization: Bearer e3f515ac6b9b81cd48de42d2ce3f0ada`\n\n### Usage\n\nThe socket API only allows a maximum of **2** connections per account.\n\nAdditional connexions will be rejected.\n\nThe quote Websocket API allows subscription to any allowed instruments. You can subscribe to any number of instruments per connection.\n\n*For the sake of reliability, we strongly advise you to reconnect in case of deconnection.*\n\n### Subscribe message\n\nThis is the format of the subscribe message:\n\n`{\"event\":\"subscribe\", \"instrument\":\"BTCEUR.SPOT\"}`\n\n### Unsubscribe message\n\nThis is the format of the unsubscribe message:\n\n`{\"event\":\"unsubscribe\", \"instrument\":\"BTCEUR.SPOT\"}`\n\n### Price messages\n\nThis is the format of price messages:\n\n`{\"event\":\"price\",\"success\":true,\"instrument\":\"BTCEUR.SPOT\",\"levels\":{\"buy\":[{\"price\":\"6482.2758\",\"quantity\":\"1\"},{\"price\":\"6482.4760\",\"quantity\":\"2\"}],\"sell\":[{\"price\":\"6467.2328\",\"quantity\":\"1\"},{\"price\":\"6467.2328\",\"quantity\":\"2\"}]},\"timestamp\":1576078504345}`\n",
+        "responses": {
+          "100": {
+            "description": "N/A"
+          }
+        }
+      }
     }
   },
-  "servers": [
-    {
-      "url": "https://api-sandbox.woorton.com/api/v1"
-    }
-  ],
   "components": {
     "schemas": {
       "RFQ_request": {
@@ -543,6 +579,14 @@
       },
       "Order_request": {
         "title": "Order",
+        "required": [
+          "client_request_id",
+          "amount",
+          "direction",
+          "instrument",
+          "requested_price",
+          "order_type"
+        ],
         "type": "object",
         "properties": {
           "client_request_id": {
