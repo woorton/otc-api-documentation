@@ -8,7 +8,7 @@ x-tagGroups:
       - Misc
   - name: WebSocket API
     tags:
-      - Quote
+      - Stream
 servers:
   - url: 'https://api-sandbox.woorton.com/api/v1'
 info:
@@ -24,6 +24,11 @@ info:
     The main usage is get quotations and executing trades.
 
     **Clients must be registered to Woorton OTC service to use this API.**
+
+    # Production Environment
+
+    * REST: `https://api.woorton.com/api/v1`
+    * WebSocket: `wss://socket.woorton.com/`
 
     # Sandbox Environment
 
@@ -364,7 +369,7 @@ paths:
     summary: Price
     get:
       tags:
-        - Quote
+        - Stream
       summary: Price broadcasting
       description: |
         ### Introduction
@@ -381,7 +386,7 @@ paths:
         ### Trade execution
         This service only provide indicative prices, for a limited numbers of levels.
 
-        You need to send a <u><a href="#tag/Orders/paths/~1orders/post">FOK order</a></u> to execute a trade.
+        You need to send a <u><a href="#tag/Orders/paths/~1orders/post">FOK or MKT order</a></u> to execute a trade.
 
         You can also use <u><a href="#tag/Quotes/paths/~1request_quotes/post">RFQs</a></u> to get more reliable price.
 
