@@ -421,14 +421,8 @@ paths:
         You can also use <u><a href="#tag/Quotes/paths/~1request_quotes/post">RFQs</a></u> to get more reliable price.
 
         ### Authentication
-        To authenticate with the websocket ( sandbox ), 
-        you must add your `TOKEN` in Url like this : `wss://sandbox.socket.woorton.com/TOKEN`.
-        
-        To authenticate with the websocket ( production ), you must add an `Authorization` header,
-        with the following format : `Bearer <TOKEN>`.
-
-        Example:
-        `Authorization: Bearer e3f515ac6b9b81cd48de42d2ce3f0ada`
+        To authenticate with the websocket, 
+        you must add your `$TOKEN` in Url like this : `wss://sandbox.socket.woorton.com/$TOKEN`.
 
         ### Usage
 
