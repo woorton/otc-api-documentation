@@ -1,0 +1,704 @@
+{
+  "openapi": "3.0.0",
+  "x-tagGroups": [
+    {
+      "name": "REST API",
+      "tags": [
+        "Quotes",
+        "History",
+        "Orders",
+        "Misc"
+      ]
+    },
+    {
+      "name": "WebSocket API",
+      "tags": [
+        "Stream"
+      ]
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api-sandbox.woorton.com/api/v1"
+    }
+  ],
+  "info": {
+    "version": "1.1",
+    "title": "Woorton Market-Maker OTC API",
+    "contact": {
+      "name": "API Support",
+      "email": "support@woorton.com"
+    },
+    "x-logo": {
+      "url": "https://www.woorton.com/assets/images/logo/woorton-logo.png"
+    },
+    "description": "The Woorton OTC Public API allows clients to access the market-maker service anytime.\nThe main usage is get quotations and executing trades.\n\n**Clients must be registered to Woorton OTC service to use this API.**\n\n# Production Environment\n\n* REST: `https://api.woorton.com/api/v1`\n* WebSocket: `wss://socket.woorton.com/`\n\n# Sandbox Environment\n\n* REST: `https://api-sandbox.woorton.com/api/v1`\n* WebSocket: `wss://sandbox.socket.woorton.com/`\n\n# Authentication\nTo authenticate with the API, you must add an `Authorization` header,\nwith the following format : `Bearer <TOKEN>`.\n\nExample:\n`Authorization: Bearer e3f515ac6b9b81cd48de42d2ce3f0ada`\n\nYour token will be securely send it to you by Woorton support team.\n\n# Security\nAPI access is filtered with IP whitelisting, please contact Woorton support team\nto whitelist your IPs.\n\n# General notes\n* API is only accessible through TLS ;\n* dates are in <a href=\"https://fr.wikipedia.org/wiki/ISO_8601#UTC\">ISO 8601 UTC format</a>.\n\n# Libraries and implementation examples\nYou can find API client library for different languages:\n- <a href=\"https://github.com/jwoorton/woorton-API-python\">Python</a>;\n- *more coming soon...*\n"
+  },
+  "paths": {
+    "/request_quotes": {
+      "post": {
+        "tags": [
+          "Quotes"
+        ],
+        "description": "<p> You may request for a quotation using this action. <br><br> Once the quotation is returned (in response), you will have a short delay to confirm, ie execute, the trade, by calling the <a href=\"#tag/Quotes/paths/~1trades/post\"><u>Trade API</u></a>. <br><br> Quote expires approximately 20 seconds after the request. <br><br> Allowed instrument can queried via /api/v1/instruments. </p>\n<table style=\"width:50%\"> <thead>\n  <tr>\n  <th>Pair</th>\n  <th>Amount precision</th>\n  <th>Total precision</th>\n  </tr>\n</thead> <tbody>\n  <tr>\n  <tr><td>ETHBTC.SPOT</td><td>2</td><td>8</td></tr>\n  <tr><td>ETHUST.SPOT</td><td>2</td><td>2</td></tr>\n  <tr><td>BTCUST.SPOT</td><td>2</td><td>2</td></tr>\n  <tr><td>LTCUST.SPOT</td><td>2</td><td>2</td></tr>\n  <tr><td>BCHUST.SPOT</td><td>2</td><td>2</td></tr>\n  <tr><td>XRPUST.SPOT</td><td>2</td><td>2</td></tr>\n  <tr><td>Others</td><td>4</td><td>2</td></tr>\n</tbody> </table>\n",
+        "summary": "Create a New RFQ",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RFQ_request"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RFQ_response"
+                },
+                "examples": {
+                  "response": {
+                    "value": {
+                      "client_request_id": "d83b5b1a-4d2c-4582-955c-d01abbad9e01",
+                      "request_id": "3cdb0e86-5001-4b0c-bd35-0b51b3062575",
+                      "amount": "1.00000000",
+                      "price": "1745.51",
+                      "total": "1745.51",
+                      "instrument": "BTCEUR.SPOT",
+                      "direction": "buy",
+                      "created_at": "2018-12-29T14:33:24.001Z",
+                      "expires_at": "2018-12-29T14:33:39.001Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "summary": "Request for Quote"
+    },
+    "/trades": {
+      "post": {
+        "tags": [
+          "Quotes"
+        ],
+        "description": "<p>\nConfirm the given quotation by executing a trade.\n<br><br>\nQuotation can only be confirmed, not changed.\n<br><br>\n<b>Note:</b> all parameters of the corresponding RFQ must be given again.\n</p>\n",
+        "summary": "Confirm a quote (ie execute trade)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Trade_request"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Trade_response"
+                },
+                "examples": {
+                  "response": {
+                    "value": {
+                      "client_request_id": "d83b5b1a-4d2c-4582-955c-d01abbad9e01",
+                      "amount": "1.00000000",
+                      "price": "3123.12345678",
+                      "total": "3123.12345678",
+                      "direction": "buy",
+                      "instrument": "BTCEUR.SPOT",
+                      "state": "executed",
+                      "created_at": "2018-12-29T14:33:24.001Z",
+                      "expired_date": "2018-12-29T14:33:39.001Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "History"
+        ],
+        "summary": "List Trades",
+        "description": "<p> You may list all trades using this action. <br><br> Results can be filtered per state (allowed states are `executed`, `canceled` and `pending_confirmation`). <br><br> Results are paginated (see `page` & `per_page` parameter). At most 100 items are returned per query. </p>\n",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "example": 1,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "example": 50,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "example": "executed",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Trade_response"
+                  }
+                },
+                "examples": {
+                  "response": {
+                    "value": [
+                      {
+                        "request_id": "b1dec8dd-d33f-46d9-a6a6-e10cc721264a",
+                        "client_request_id": "d83b5b1a-4d2c-4582-955c-d01abbad9e01",
+                        "amount": "1.231122",
+                        "price": 14545.33445544,
+                        "instrument": "BTCEUR.SPOT",
+                        "direction": "buy",
+                        "state": "executed"
+                      },
+                      {
+                        "request_id": "14a357bd-f45a-449c-854a-89af2600c26c",
+                        "client_request_id": "693c39b3-90ff-4d27-9265-c42b6ce93369",
+                        "amount": "0.1",
+                        "price": 345.3416656,
+                        "instrument": "BTCEUR.SPOT",
+                        "direction": "buy",
+                        "state": "canceled"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "summary": "Trades"
+    },
+    "/orders": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Post an order",
+        "description": "You may post an order using this action.\n\n**Orders do not requires confirmations.**\n\nOrder type are:\n* **FOK**: Fill-or-Kill Order;\n* **MKT**: Market Order.\n\n### Trade result\n\nIf the trade is not executed, trade's state became `canceled` and `price` field is empty.\n\nIf the trade is executed, trade's state became `executed` and `price` is the execution price.\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Order_request"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Trade_response"
+                },
+                "examples": {
+                  "response": {
+                    "value": {
+                      "client_request_id": "d83b5b1a-4d2c-4582-955c-d01abbad9e01",
+                      "amount": "1.00000000",
+                      "price": "3123.12345678",
+                      "total": "3123.12345678",
+                      "direction": "buy",
+                      "instrument": "BTCEUR.SPOT",
+                      "state": "executed",
+                      "order_type": "FOK",
+                      "created_at": "2018-12-29T14:33:24.001Z",
+                      "executed_at": "2018-12-29T14:33:39.001Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/balances": {
+      "get": {
+        "tags": [
+          "History"
+        ],
+        "summary": "Get balances for all currencies.",
+        "description": "<p>\nYou may list all your balances using this action.\n<br>\nThe sign of the amount indicates who owes to the other:\n<br>\n<ul>\n  <li>negative: you owe Woorton the amount ;</li>\n  <li>positive: Woorton owe you the amount.</li>\n</ul>\n</p>\n",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Balances"
+                  }
+                },
+                "examples": {
+                  "response": {
+                    "value": {
+                      "USD": 0,
+                      "EUR": 0,
+                      "ETH": 0,
+                      "BTC": 0,
+                      "LTC": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "summary": "Balances"
+    },
+    "/exposures": {
+      "get": {
+        "tags": [
+          "Misc"
+        ],
+        "summary": "Get exposure for all currencies",
+        "description": "<p> You may list your allowed and consumed exposure for all currencies using this action. <br> For each currency, you get your maximum exposure amount. <br><br> <b>Note:</b> <br> Pending settlement request are not take in account until confirmed by Woorton team ; you can contact Woorton support to increase your exposures. </p>\n",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Exposures"
+                  }
+                },
+                "examples": {
+                  "response": {
+                    "value": {
+                      "USD": 50000,
+                      "EUR": 50000,
+                      "ETH": 100,
+                      "BTC": 10,
+                      "LTC": 100
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "summary": "Exposures"
+    },
+    "/ledger": {
+      "summary": "Ledger",
+      "get": {
+        "tags": [
+          "History"
+        ],
+        "summary": "List ledger operations.",
+        "description": "<p> You may list all ledger operations using this action. </p> Operation's category can be: <ul>\n  <li>trade;</li>\n  <li>withdrawal;</li>\n  <li>deposit.</li>\n</ul> <p> Results are paginated (see page & per_page parameter). At most 100 items are returned per query. </p>\n",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "example": 1,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "example": 50,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Ledger"
+                  }
+                },
+                "examples": {
+                  "response": {
+                    "value": [
+                      {
+                        "operation_id": "0ea203d1-a2de-4f85-ad9e-689e422d8fae",
+                        "currency": "BTC",
+                        "amount": "13.43554455",
+                        "category": "trade",
+                        "created_at": "2018-12-24T19:15:31.012Z"
+                      },
+                      {
+                        "operation_id": "1f6cf143-bbe5-46d5-825e-e21814d55bc9",
+                        "currency": "EUR",
+                        "amount": "40000.00000000",
+                        "category": "deposit",
+                        "created_at": "2018-12-25T13:55:34.012Z"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/instruments": {
+      "summary": "Instruments",
+      "get": {
+        "tags": [
+          "Misc"
+        ],
+        "summary": "List available instruments.",
+        "description": "You may list all instruments using this action. <br> Instruments' list could change over time, please consult this list regularly.\n",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "example": 1,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Instruments"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "summary": "Price",
+      "get": {
+        "tags": [
+          "Stream"
+        ],
+        "summary": "Price broadcasting",
+        "description": "### Introduction\n\nThis server is usable only by Woorton's customers.\n\n### Workflow\n\n* **Log-in** : connection to websocket server ;\n* **Subscribe** : subscribe to one or more instruments ;\n* **Messages** : receive price stream messages ;\n* **Unsubscribe** : unsubscribe to one or more instruments.\n\n### Trade execution\nThis service only provide indicative prices, for a limited numbers of levels.\n\nYou need to send a <u><a href=\"#tag/Orders/paths/~1orders/post\">FOK or MKT order</a></u> to execute a trade.\n\nYou can also use <u><a href=\"#tag/Quotes/paths/~1request_quotes/post\">RFQs</a></u> to get more reliable price.\n\n### Authentication\nTo authenticate with the websocket, \nyou must add your `$TOKEN` in Url like this : `wss://sandbox.socket.woorton.com/$TOKEN`.\n\n### Usage\n\nThe socket API only allows a maximum of **2** connections per account.\n\nAdditional connexions will be rejected.\n\nThe quote Websocket API allows subscription to any allowed instruments. You can subscribe to any number of instruments per connection.\n\n*For the sake of reliability, we strongly advise you to reconnect in case of deconnection.*\n\n### Subscribe message\n\nThis is the format of the subscribe message:\n\n`{\"event\":\"subscribe\", \"instrument\":\"BTCEUR.SPOT\"}`\n\n### Unsubscribe message\n\nThis is the format of the unsubscribe message:\n\n`{\"event\":\"unsubscribe\", \"instrument\":\"BTCEUR.SPOT\"}`\n\n### Price messages\n\nThis is the format of price messages:\n\n`{\"event\":\"price\",\"success\":true,\"instrument\":\"BTCEUR.SPOT\",\"levels\":{\"buy\":[{\"price\":\"6482.2758\",\"quantity\":\"1\"},{\"price\":\"6482.4760\",\"quantity\":\"2\"}],\"sell\":[{\"price\":\"6467.2328\",\"quantity\":\"1\"},{\"price\":\"6467.2328\",\"quantity\":\"2\"}]},\"timestamp\":1576078504345}`\n",
+        "responses": {
+          "100": {
+            "description": "N/A"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RFQ_request": {
+        "title": "Request for Quote Request",
+        "type": "object",
+        "properties": {
+          "client_request_id": {
+            "type": "string",
+            "default": "d83b5b1a-4d2c-4582-955c-d01abbad9e01"
+          },
+          "amount": {
+            "type": "string",
+            "default": "1.0"
+          },
+          "instrument": {
+            "type": "string",
+            "example": "BTCEUR.SPOT"
+          },
+          "direction": {
+            "type": "string",
+            "example": "buy"
+          }
+        },
+        "required": [
+          "client_request_id",
+          "amount",
+          "instrument",
+          "direction"
+        ]
+      },
+      "RFQ_response": {
+        "title": "Request for Quote Response",
+        "type": "object",
+        "properties": {
+          "client_request_id": {
+            "type": "string",
+            "default": "some-client-uuid"
+          },
+          "request_id": {
+            "type": "string",
+            "default": "some-uuid"
+          },
+          "instrument": {
+            "type": "string",
+            "example": "BTCEUR.SPOT"
+          },
+          "direction": {
+            "type": "string",
+            "example": "buy"
+          },
+          "amount": {
+            "type": "string",
+            "default": "1.0"
+          },
+          "total": {
+            "type": "number",
+            "example": "3123.12"
+          },
+          "price": {
+            "type": "number",
+            "example": "3123.12"
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2018-12-23T21:51:34.001Z"
+          },
+          "expires_at": {
+            "type": "string",
+            "example": "2018-12-23T21:51:34.001Z"
+          }
+        }
+      },
+      "Trade_request": {
+        "title": "Trade",
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "default": "some-uuid"
+          },
+          "amount": {
+            "type": "string",
+            "default": "1.0"
+          },
+          "total": {
+            "type": "string",
+            "default": "3123.12345678"
+          },
+          "instrument": {
+            "type": "string",
+            "example": "BTCEUR.SPOT"
+          },
+          "direction": {
+            "type": "string",
+            "example": "buy"
+          }
+        }
+      },
+      "Trade_response": {
+        "title": "Trade",
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "client_request_id": {
+            "type": "string"
+          },
+          "total": {
+            "type": "string",
+            "example": "3123.12345678"
+          },
+          "amount": {
+            "type": "string",
+            "default": "1.0"
+          },
+          "instrument": {
+            "type": "string",
+            "example": "BTCEUR.SPOT"
+          },
+          "direction": {
+            "type": "string",
+            "example": "buy"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "executed",
+              "canceled",
+              "pending_quote"
+            ],
+            "example": "executed"
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2018-12-23T21:51:25.001Z"
+          },
+          "executed_at": {
+            "type": "string",
+            "example": "2018-12-23T21:51:34.001Z"
+          }
+        }
+      },
+      "Order_request": {
+        "title": "Order",
+        "required": [
+          "client_request_id",
+          "amount",
+          "direction",
+          "instrument",
+          "requested_price",
+          "order_type"
+        ],
+        "type": "object",
+        "properties": {
+          "client_request_id": {
+            "type": "string",
+            "default": "some-uuid"
+          },
+          "amount": {
+            "type": "string",
+            "default": "1.0"
+          },
+          "requested_price": {
+            "type": "string",
+            "default": "6500.45"
+          },
+          "order_type": {
+            "type": "string",
+            "example": "FOK"
+          },
+          "instrument": {
+            "type": "string",
+            "example": "BTCEUR.SPOT"
+          },
+          "direction": {
+            "type": "string",
+            "example": "buy"
+          }
+        }
+      },
+      "Balances": {
+        "title": "Balances",
+        "type": "object",
+        "properties": {
+          "USD": {
+            "type": "number",
+            "example": 0
+          },
+          "EUR": {
+            "type": "number",
+            "example": 0
+          },
+          "BTC": {
+            "type": "number",
+            "example": 0
+          },
+          "LTC": {
+            "type": "number",
+            "example": 0
+          },
+          "XRP": {
+            "type": "number",
+            "example": 0
+          },
+          "BCH": {
+            "type": "number",
+            "example": 0
+          }
+        }
+      },
+      "Exposures": {
+        "title": "Exposures",
+        "type": "object",
+        "properties": {
+          "USD": {
+            "type": "number",
+            "example": 0
+          },
+          "EUR": {
+            "type": "number",
+            "example": 0
+          },
+          "BTC": {
+            "type": "number",
+            "example": 0
+          },
+          "LTC": {
+            "type": "number",
+            "example": 0
+          },
+          "XRP": {
+            "type": "number",
+            "example": 0
+          },
+          "BCH": {
+            "type": "number",
+            "example": 0
+          }
+        }
+      },
+      "Instruments": {
+        "title": "Instruments",
+        "type": "array",
+        "example": {
+          "instrumennts": [
+            "ETHBTC.SPOT",
+            "ETHUSD.SPOT",
+            "ETHEUR.SPOT",
+            "BTCEUR.SPOT",
+            "BTCUSD.SPOT",
+            "LTCUSD.SPOT",
+            "LTCEUR.SPOT",
+            "BCHUSD.SPOT"
+          ]
+        },
+        "items": {}
+      },
+      "Ledger": {
+        "title": "Ledger",
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}
